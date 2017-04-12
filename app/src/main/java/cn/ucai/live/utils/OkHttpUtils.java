@@ -4,8 +4,6 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
 
-import cn.ucai.live.I;
-import cn.ucai.live.data.model.Result;
 import com.google.gson.Gson;
 
 import java.io.File;
@@ -21,6 +19,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import cn.ucai.live.I;
+import cn.ucai.live.LiveApplication;
+import cn.ucai.live.data.model.Result;
 import okhttp3.Cache;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -143,20 +144,20 @@ public class OkHttpUtils<T> {
 
 
     private void initHandler() {
-//        mHandler = new Handler(LiveApplication.applicationContext.getMainLooper()) {
-//            @Override
-//            public void handleMessage(Message msg) {
-//                switch (msg.what) {
-//                    case RESULT_ERROR:
-//                        mListener.onError(msg.obj==null?msg.toString():msg.obj.toString());
-//                        break;
-//                    case RESULT_SUCCESS:
-//                        T result = (T) msg.obj;
-//                        mListener.onSuccess(result);
-//                        break;
-//                }
-//            }
-//        };
+        mHandler = new Handler(LiveApplication.getInstance().getMainLooper()) {
+            @Override
+            public void handleMessage(Message msg) {
+                switch (msg.what) {
+                    case RESULT_ERROR:
+                        mListener.onError(msg.obj==null?msg.toString():msg.obj.toString());
+                        break;
+                    case RESULT_SUCCESS:
+                        T result = (T) msg.obj;
+                        mListener.onSuccess(result);
+                        break;
+                }
+            }
+        };
     }
 
     /**
