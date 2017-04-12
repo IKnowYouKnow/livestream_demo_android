@@ -6,8 +6,8 @@ import android.annotation.TargetApi;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.text.Editable;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -16,9 +16,20 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import cn.ucai.live.R;
+
 import com.hyphenate.EMCallBack;
 import com.hyphenate.chat.EMClient;
+import com.hyphenate.easeui.domain.User;
+
+import cn.ucai.live.R;
+import cn.ucai.live.data.model.IUserModel;
+import cn.ucai.live.data.model.OnCompleteListener;
+import cn.ucai.live.data.model.Result;
+import cn.ucai.live.data.model.UserModel;
+import cn.ucai.live.utils.CommonUtils;
+import cn.ucai.live.utils.MFGT;
+import cn.ucai.live.utils.PreferenceManager;
+import cn.ucai.live.utils.ResultUtils;
 
 /**
  * A login screen that offers login via email/password.
@@ -31,23 +42,56 @@ public class LoginActivity extends BaseActivity {
   private EditText mPasswordView;
   private View mProgressView;
   private View mLoginFormView;
+  Button mEmailSignInButton;
+  IUserModel mModel;
+  String mUsername,mPwd;
+
 
   @Override protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_login);
 
     if(EMClient.getInstance().isLoggedInBefore()){
       startActivity(new Intent(this, MainActivity.class));
       finish();
       return;
     }
-    setContentView(R.layout.activity_login);
+
+    initView();
+    initData();
+    setOnClickListener();
+  }
+
+  private void initData() {
+    mModel = new UserModel();
+    PreferenceManager.init(LoginActivity.this);
+    String username = PreferenceManager.getInstance().getCurrentUsername();
+    if (username != null) {
+      mEmailView.setText(username);
+    }
+  }
+
+  private void initView() {
     // Set up the login form.
     mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
-
     mPasswordView = (EditText) findViewById(R.id.password);
+    mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
+    mLoginFormView = findViewById(R.id.login_form);
+    mProgressView = findViewById(R.id.login_progress);
+  }
+
+  private void setOnClickListener() {
+    mEmailSignInButton.setOnClickListener(new OnClickListener() {
+      @Override public void onClick(View view) {
+        loginAppService();
+        attemptLogin();
+      }
+    });
+
     mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
       @Override public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
         if (id == R.id.login || id == EditorInfo.IME_NULL) {
+          loginAppService();
           attemptLogin();
           return true;
         }
@@ -55,25 +99,58 @@ public class LoginActivity extends BaseActivity {
       }
     });
 
-
-    Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
-    mEmailSignInButton.setOnClickListener(new OnClickListener() {
-      @Override public void onClick(View view) {
-        attemptLogin();
-      }
-    });
-
-    mLoginFormView = findViewById(R.id.login_form);
-    mProgressView = findViewById(R.id.login_progress);
-
     findViewById(R.id.register).setOnClickListener(new OnClickListener() {
       @Override
       public void onClick(View v) {
-        startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
+//        startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
+        MFGT.gotoRegisterActivity(LoginActivity.this);
       }
     });
 
+  }
 
+  private void loginAppService() {
+    if (checkInput()){
+      showProgress(true);
+      mModel.login(LoginActivity.this, mUsername, mPwd, new OnCompleteListener<String>() {
+        @Override
+        public void onSuccess(String s) {
+          if (s != null) {
+            Result result = ResultUtils.getResultFromJson(s, User.class);
+            if (result != null && result.isRetMsg()) {
+                PreferenceManager.getInstance().setCurrentUserName(mUsername);
+                showProgress(false);
+              Log.i("main", "LoginActivity,远端服务器登录成功");
+              }
+            }
+          }
+
+        @Override
+        public void onError(String error) {
+          CommonUtils.showLongToast(R.string.Login_failed+error);
+          showProgress(false);
+          Log.i("main", "LoginActivity,远端服务器登录失败");
+        }
+      });
+    }
+  }
+
+  private boolean checkInput() {
+    mUsername = mEmailView.getText().toString();
+    mPwd = mPasswordView.getText().toString();
+    // Check for a valid email address.
+    if (TextUtils.isEmpty(mUsername)) {
+      mEmailView.setError(getString(R.string.error_invalid_email));
+      mEmailView.requestFocus();
+      return false;
+    }
+    // Check for a valid password, if the user entered one.
+    if (TextUtils.isEmpty(mPwd)) {
+      mPasswordView.setError(getString(R.string.error_invalid_password));
+      mPasswordView.requestFocus();
+      return false;
+    }
+    return true;
   }
 
 
@@ -83,42 +160,33 @@ public class LoginActivity extends BaseActivity {
    * errors are presented and no actual login attempt is made.
    */
   private void attemptLogin() {
-    // Reset errors.
-    mEmailView.setError(null);
-    mPasswordView.setError(null);
+//    // Reset errors.
+//    mEmailView.setError(null);
+//    mPasswordView.setError(null);
+//
+//    // Store values at the time of the login attempt.
+//    Editable email = mEmailView.getText();
+//    Editable password = mPasswordView.getText();
 
-    // Store values at the time of the login attempt.
-    Editable email = mEmailView.getText();
-    Editable password = mPasswordView.getText();
+//    boolean cancel = false;
+//    View focusView = null;
 
-    boolean cancel = false;
-    View focusView = null;
 
-    // Check for a valid password, if the user entered one.
-    if (TextUtils.isEmpty(password)) {
-      mPasswordView.setError(getString(R.string.error_invalid_password));
-      focusView = mPasswordView;
-      cancel = true;
-    }
 
-    // Check for a valid email address.
-    if (TextUtils.isEmpty(email)) {
-      mEmailView.setError(getString(R.string.error_invalid_email));
-      focusView = mEmailView;
-      cancel = true;
-    }
-
-    if (cancel) {
-      // There was an error; don't attempt login and focus the first
-      // form field with an error.
-      focusView.requestFocus();
-    } else {
+//    if (cancel) {
+//      // There was an error; don't attempt login and focus the first
+//      // form field with an error.
+//      focusView.requestFocus();
+//    } else {
       // Show a progress spinner, and kick off a background task to
       // perform the user login attempt.
-      showProgress(true);
-      EMClient.getInstance().login(email.toString(), password.toString(), new EMCallBack() {
+
+      EMClient.getInstance().login(mUsername, mPwd, new EMCallBack() {
         @Override public void onSuccess() {
+          Log.i("main", "LoginActivity,环信服务器登录成功");
+            showProgress(false);
             startActivity(new Intent(LoginActivity.this, MainActivity.class));
+
             finish();
         }
 
@@ -127,6 +195,7 @@ public class LoginActivity extends BaseActivity {
             @Override
             public void run() {
               showProgress(false);
+              Log.i("main", "LoginActivity,环信服务器登录失败");
               mPasswordView.setError(s);
               mPasswordView.requestFocus();
             }
@@ -134,10 +203,11 @@ public class LoginActivity extends BaseActivity {
         }
 
         @Override public void onProgress(int i, String s) {
+          showProgress(false);
         }
       });
 
-    }
+//    }
   }
 
 

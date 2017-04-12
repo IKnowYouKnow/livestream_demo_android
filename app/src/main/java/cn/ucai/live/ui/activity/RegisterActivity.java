@@ -22,6 +22,7 @@ import cn.ucai.live.data.model.Result;
 import cn.ucai.live.data.model.UserModel;
 import cn.ucai.live.utils.CommonUtils;
 import cn.ucai.live.utils.MFGT;
+import cn.ucai.live.utils.PreferenceManager;
 import cn.ucai.live.utils.ResultUtils;
 
 public class RegisterActivity extends BaseActivity {
@@ -51,6 +52,7 @@ public class RegisterActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
         ButterKnife.bind(this);
+        PreferenceManager.init(RegisterActivity.this);
         mModel = new UserModel();
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -80,6 +82,8 @@ public class RegisterActivity extends BaseActivity {
                         public void run() {
                             pd.dismiss();
                             showToast("注册成功");
+                            PreferenceManager.getInstance().setCurrentUserName(mUserName);
+                            PreferenceManager.getInstance().setCurrentUserNick(mNick);
                             MFGT.gotoLoginActivity(RegisterActivity.this);
                         }
                     });
