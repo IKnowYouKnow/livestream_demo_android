@@ -1,4 +1,4 @@
-package cn.ucai.live.data.restapi.model;
+package cn.ucai.live.data.model;
 
 
 import cn.ucai.live.utils.OkHttpUtils;
