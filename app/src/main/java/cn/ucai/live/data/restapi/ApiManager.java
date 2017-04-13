@@ -2,23 +2,33 @@ package cn.ucai.live.data.restapi;
 
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import cn.ucai.live.LiveApplication;
-import cn.ucai.live.data.model.LiveRoom;
-import cn.ucai.live.data.restapi.model.LiveStatusModule;
-import cn.ucai.live.data.restapi.model.ResponseModule;
-import cn.ucai.live.data.restapi.model.StatisticsType;
+import android.util.Log;
+
 import com.hyphenate.chat.EMClient;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.util.List;
 
+import cn.ucai.live.I;
+import cn.ucai.live.LiveApplication;
+import cn.ucai.live.data.LiveService;
+import cn.ucai.live.data.model.Gift;
+import cn.ucai.live.data.model.LiveRoom;
+import cn.ucai.live.data.model.Result;
+import cn.ucai.live.data.restapi.model.LiveStatusModule;
+import cn.ucai.live.data.restapi.model.ResponseModule;
+import cn.ucai.live.data.restapi.model.StatisticsType;
+import cn.ucai.live.utils.ResultUtils;
 import okhttp3.Interceptor;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
-import org.json.JSONException;
-import org.json.JSONObject;
 import retrofit2.Call;
+import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -30,6 +40,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class ApiManager {
     private String appkey;
     private ApiService apiService;
+    private LiveService mLiveService;
 
     private static  ApiManager instance;
 
@@ -57,6 +68,14 @@ public class ApiManager {
                 .build();
 
         apiService = retrofit.create(ApiService.class);
+
+        Retrofit liveRetrofit = new Retrofit.Builder()
+                .baseUrl(I.SERVER_ROOT)
+                .addConverterFactory(GsonConverterFactory.create())
+                .client(httpClient)
+                .build();
+
+        mLiveService = liveRetrofit.create(LiveService.class);
 
     }
 
@@ -120,6 +139,46 @@ public class ApiManager {
         return liveRoom;
     }
 
+    public void getAllGifts(){
+        Call<String> gifts = mLiveService.getAllGifts();
+        gifts.enqueue(new Callback<String>() {
+            @Override
+            public void onResponse(Call<String> call, Response<String> response) {
+                String body = response.body();
+                if (body != null) {
+                    Result result = ResultUtils.getResultFromJson(body, Gift.class);
+                    if (result != null && result.isRetMsg()) {
+                        List<Gift> gifts = (List<Gift>) result.getRetData();
+                        if (gifts!=null) {
+                            for (Gift gift : gifts) {
+                                Log.i("main","ApiManager.getAllGifts:");
+                            }
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<String> call, Throwable t) {
+
+            }
+        });
+    }
+
+    public void loadUserInfo(String username){
+        Call<String> call = mLiveService.loadUserInfo(username);
+        call.enqueue(new Callback<String>() {
+            @Override
+            public void onResponse(Call<String> call, Response<String> response) {
+                String body = response.body();
+            }
+
+            @Override
+            public void onFailure(Call<String> call, Throwable t) {
+
+            }
+        });
+    }
     public void updateLiveRoomCover(String roomId, String coverUrl) throws LiveException {
         JSONObject jobj = new JSONObject();
         JSONObject picObj = new JSONObject();
@@ -132,8 +191,6 @@ public class ApiManager {
         Call<ResponseModule> responseCall = apiService.updateLiveRoom(roomId, jsonToRequestBody(jobj.toString()));
         handleResponseCall(responseCall);
     }
-
-
 
     //public void joinLiveRoom(String roomId, String userId) throws LiveException {
     //    JSONObject jobj = new JSONObject();
