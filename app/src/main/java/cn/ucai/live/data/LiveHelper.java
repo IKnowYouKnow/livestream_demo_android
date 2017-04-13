@@ -9,6 +9,7 @@ import com.hyphenate.EMCallBack;
 import com.hyphenate.EMConnectionListener;
 import com.hyphenate.EMError;
 import com.hyphenate.chat.EMClient;
+import com.hyphenate.chat.EMOptions;
 import com.hyphenate.easeui.controller.EaseUI;
 import com.hyphenate.easeui.controller.EaseUI.EaseUserProfileProvider;
 import com.hyphenate.easeui.domain.EaseUser;
@@ -80,19 +81,40 @@ public class LiveHelper {
         demoModel = new LiveModel(context);
         mModel = new UserModel();
         appContext = context;
+        EMOptions options = initChatOptions();
+        if (EaseUI.getInstance().init(context, options)) {
+            //debug mode, you'd better set it to false, if you want release your App officially.
+            EMClient.getInstance().setDebugMode(true);
+            //get easeui instance
+            easeUI = EaseUI.getInstance();
+            //to set user's profile and avatar
+            setEaseUIProviders();
+            //initialize preference manager
+            PreferenceManager.init(context);
+            //initialize profile manager
+            getUserProfileManager().init(context);
+            setGlobalListeners();
+            broadcastManager = LocalBroadcastManager.getInstance(appContext);
+        }
+    }
+    private EMOptions initChatOptions() {
+        Log.d(TAG, "init HuanXin Options");
 
-        //debug mode, you'd better set it to false, if you want release your App officially.
-        EMClient.getInstance().setDebugMode(true);
-        //get easeui instance
-        easeUI = EaseUI.getInstance();
-        //to set user's profile and avatar
-        setEaseUIProviders();
-        //initialize preference manager
-        PreferenceManager.init(context);
-        //initialize profile manager
-        getUserProfileManager().init(context);
-        setGlobalListeners();
-        broadcastManager = LocalBroadcastManager.getInstance(appContext);
+        EMOptions options = new EMOptions();
+        // set if accept the invitation automatically
+        options.setAcceptInvitationAlways(false);
+        // set if you need read ack
+        options.setRequireAck(true);
+        // set if you need delivery ack
+        options.setRequireDeliveryAck(false);
+
+        //you need apply & set your own id if you want to use google cloud messaging.
+        options.setGCMNumber("324169311137");
+        //you need apply & set your own id if you want to use Mi push notification
+        options.setMipushConfig("2882303761517426801", "5381742660801");
+        //you need apply & set your own id if you want to use Huawei push notification
+        options.setHuaweiPushAppId("10492024");
+        return options;
     }
 
 
