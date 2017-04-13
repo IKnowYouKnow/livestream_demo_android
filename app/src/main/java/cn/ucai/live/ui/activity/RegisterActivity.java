@@ -21,6 +21,7 @@ import cn.ucai.live.data.model.OnCompleteListener;
 import cn.ucai.live.data.model.Result;
 import cn.ucai.live.data.model.UserModel;
 import cn.ucai.live.utils.CommonUtils;
+import cn.ucai.live.utils.MD5;
 import cn.ucai.live.utils.MFGT;
 import cn.ucai.live.utils.PreferenceManager;
 import cn.ucai.live.utils.ResultUtils;
@@ -75,7 +76,7 @@ public class RegisterActivity extends BaseActivity {
             @Override
             public void run() {
                 try {
-                    EMClient.getInstance().createAccount(mUserName, mPassword);
+                    EMClient.getInstance().createAccount(mUserName, MD5.getMessageDigest(mPassword));
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
