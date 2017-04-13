@@ -19,17 +19,12 @@ import android.widget.TextView;
 
 import com.hyphenate.EMCallBack;
 import com.hyphenate.chat.EMClient;
-import com.hyphenate.easeui.domain.User;
 
 import cn.ucai.live.R;
 import cn.ucai.live.data.model.IUserModel;
-import cn.ucai.live.data.model.OnCompleteListener;
-import cn.ucai.live.data.model.Result;
 import cn.ucai.live.data.model.UserModel;
-import cn.ucai.live.utils.CommonUtils;
 import cn.ucai.live.utils.MFGT;
 import cn.ucai.live.utils.PreferenceManager;
-import cn.ucai.live.utils.ResultUtils;
 
 /**
  * A login screen that offers login via email/password.
@@ -85,8 +80,7 @@ public class LoginActivity extends BaseActivity {
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                loginAppService();
-//                attemptLogin();
+                attemptLogin();
             }
         });
 
@@ -94,8 +88,7 @@ public class LoginActivity extends BaseActivity {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
                 if (id == R.id.login || id == EditorInfo.IME_NULL) {
-                    loginAppService();
-//                    attemptLogin();
+                    attemptLogin();
                     return true;
                 }
                 return false;
@@ -112,32 +105,6 @@ public class LoginActivity extends BaseActivity {
 
     }
 
-    private void loginAppService() {
-        if (checkInput()) {
-            showProgress(true);
-            mModel.login(LoginActivity.this, mUsername, mPwd, new OnCompleteListener<String>() {
-                @Override
-                public void onSuccess(String s) {
-                    if (s != null) {
-                        Result result = ResultUtils.getResultFromJson(s, User.class);
-                        if (result != null && result.isRetMsg()) {
-                            PreferenceManager.getInstance().setCurrentUserName(mUsername);
-                            Log.i("main", "LoginActivity,远端服务器登录成功");
-                            attemptLogin();
-                            showProgress(false);
-                        }
-                    }
-                }
-
-                @Override
-                public void onError(String error) {
-                    CommonUtils.showLongToast(R.string.Login_failed + error);
-                    showProgress(false);
-                    Log.i("main", "LoginActivity,远端服务器登录失败");
-                }
-            });
-        }
-    }
 
     private boolean checkInput() {
         mUsername = mEmailView.getText().toString();
@@ -183,37 +150,36 @@ public class LoginActivity extends BaseActivity {
 //    } else {
         // Show a progress spinner, and kick off a background task to
         // perform the user login attempt.
+        if (checkInput()) {
+            showProgress(true);
+            EMClient.getInstance().login(mUsername, mPwd, new EMCallBack() {
+                @Override
+                public void onSuccess() {
+                    Log.i("main", "LoginActivity,环信服务器登录成功");
+                    showProgress(false);
+//                  startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                    MFGT.gotoMain(LoginActivity.this);
+                    finish();
+                }
 
-        EMClient.getInstance().login(mUsername, mPwd, new EMCallBack() {
-            @Override
-            public void onSuccess() {
-                Log.i("main", "LoginActivity,环信服务器登录成功");
-                showProgress(false);
-//                startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                MFGT.gotoMain(LoginActivity.this);
-                finish();
-            }
+                @Override
+                public void onError(int i, final String s) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            showProgress(false);
+                            Log.i("main", "LoginActivity,环信服务器登录失败");
+                            mPasswordView.setError(s);
+                            mPasswordView.requestFocus();
+                        }
+                    });
+                }
 
-            @Override
-            public void onError(int i, final String s) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        showProgress(false);
-                        Log.i("main", "LoginActivity,环信服务器登录失败");
-                        mPasswordView.setError(s);
-                        mPasswordView.requestFocus();
-                    }
-                });
-            }
-
-            @Override
-            public void onProgress(int i, String s) {
-                showProgress(false);
-            }
-        });
-
-//    }
+                @Override
+                public void onProgress(int i, String s) {
+                }
+            });
+        }
     }
 
 
