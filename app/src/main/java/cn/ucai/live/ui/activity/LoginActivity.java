@@ -6,8 +6,8 @@ import android.annotation.TargetApi;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -21,13 +21,12 @@ import com.hyphenate.EMCallBack;
 import com.hyphenate.chat.EMClient;
 
 import cn.ucai.live.R;
-import cn.ucai.live.data.model.IUserModel;
-import cn.ucai.live.data.model.UserModel;
-import cn.ucai.live.utils.MFGT;
+import cn.ucai.live.data.LiveHelper;
+import cn.ucai.live.utils.MD5;
 import cn.ucai.live.utils.PreferenceManager;
 
 /**
- * A login screen that offers login via email/password.
+ * A login screen that offers login via email/text_password.
  */
 public class LoginActivity extends BaseActivity {
 
@@ -38,52 +37,28 @@ public class LoginActivity extends BaseActivity {
     private View mProgressView;
     private View mLoginFormView;
     Button mEmailSignInButton;
-    IUserModel mModel;
-    String mUsername, mPwd;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
 
-        if (EMClient.getInstance().isLoggedInBefore()) {
+        if (LiveHelper.getInstance().isLoggedIn()) {
             startActivity(new Intent(this, MainActivity.class));
             finish();
             return;
         }
 
+        setContentView(R.layout.activity_login);
         initView();
-        initData();
-        setOnClickListener();
-    }
-
-    private void initData() {
-        mModel = new UserModel();
-
-        String username = PreferenceManager.getInstance().getCurrentUsername();
-        if (username != null) {
-            mEmailView.setText(username);
+        if (PreferenceManager.getInstance().getCurrentUsername() != null) {
+            mEmailView.setText(PreferenceManager.getInstance().getCurrentUsername());
         }
-    }
+        setOnClickListener();
 
-    private void initView() {
-        // Set up the login form.
-        mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
-        mPasswordView = (EditText) findViewById(R.id.password);
-        mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
-        mLoginFormView = findViewById(R.id.login_form);
-        mProgressView = findViewById(R.id.login_progress);
+
     }
 
     private void setOnClickListener() {
-        mEmailSignInButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                attemptLogin();
-            }
-        });
-
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
@@ -95,33 +70,38 @@ public class LoginActivity extends BaseActivity {
             }
         });
 
-        findViewById(R.id.register).setOnClickListener(new OnClickListener() {
+
+
+        mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override
-            public void onClick(View v) {
-//        startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
-                MFGT.gotoRegisterActivity(LoginActivity.this);
+            public void onClick(View view) {
+                attemptLogin();
             }
         });
 
+
+        findViewById(R.id.register).setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
+            }
+        });
+        if (PreferenceManager.getInstance().getCurrentUsername() != null) {
+            mEmailView.setText(PreferenceManager.getInstance().getCurrentUsername());
+
+        }
     }
 
+    private void initView() {
+        // Set up the login form.
+        mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
 
-    private boolean checkInput() {
-        mUsername = mEmailView.getText().toString();
-        mPwd = mPasswordView.getText().toString();
-        // Check for a valid email address.
-        if (TextUtils.isEmpty(mUsername)) {
-            mEmailView.setError(getString(R.string.error_invalid_email));
-            mEmailView.requestFocus();
-            return false;
-        }
-        // Check for a valid password, if the user entered one.
-        if (TextUtils.isEmpty(mPwd)) {
-            mPasswordView.setError(getString(R.string.error_invalid_password));
-            mPasswordView.requestFocus();
-            return false;
-        }
-        return true;
+        mPasswordView = (EditText) findViewById(R.id.password);
+
+        mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
+        mLoginFormView = findViewById(R.id.login_form);
+        mProgressView = findViewById(R.id.login_progress);
+
     }
 
 
@@ -130,35 +110,29 @@ public class LoginActivity extends BaseActivity {
      * If there are form errors (invalid email, missing fields, etc.), the
      * errors are presented and no actual login attempt is made.
      */
+    Editable email;
+    Editable password;
+    View focusView = null;
     private void attemptLogin() {
-//    // Reset errors.
-//    mEmailView.setError(null);
-//    mPasswordView.setError(null);
-//
-//    // Store values at the time of the login attempt.
-//    Editable email = mEmailView.getText();
-//    Editable password = mPasswordView.getText();
-
-//    boolean cancel = false;
-//    View focusView = null;
+        // Reset errors.
+        mEmailView.setError(null);
+        mPasswordView.setError(null);
 
 
-//    if (cancel) {
-//      // There was an error; don't attempt login and focus the first
-//      // form field with an error.
-//      focusView.requestFocus();
-//    } else {
-        // Show a progress spinner, and kick off a background task to
-        // perform the user login attempt.
-        if (checkInput()) {
+        if (cancel()) {
+            // There was an error; don't attempt login and focus the first
+            // form field with an error.
+            focusView.requestFocus();
+        } else {
+            // Show a progress spinner, and kick off a background task to
+            // perform the user login attempt.
             showProgress(true);
-            EMClient.getInstance().login(mUsername, mPwd, new EMCallBack() {
+            EMClient.getInstance().login(email.toString(), MD5.getMessageDigest(password.toString()), new EMCallBack() {
                 @Override
                 public void onSuccess() {
-                    Log.i("main", "LoginActivity,环信服务器登录成功");
-                    showProgress(false);
-//                  startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                    MFGT.gotoMain(LoginActivity.this);
+                    PreferenceManager.getInstance().setCurrentUserName(email.toString());
+                    LiveHelper.getInstance().getUserProfileManager().asyncGetCurrentAppUserInfo();
+                    startActivity(new Intent(LoginActivity.this, MainActivity.class));
                     finish();
                 }
 
@@ -168,7 +142,6 @@ public class LoginActivity extends BaseActivity {
                         @Override
                         public void run() {
                             showProgress(false);
-                            Log.i("main", "LoginActivity,环信服务器登录失败");
                             mPasswordView.setError(s);
                             mPasswordView.requestFocus();
                         }
@@ -179,7 +152,30 @@ public class LoginActivity extends BaseActivity {
                 public void onProgress(int i, String s) {
                 }
             });
+
         }
+    }
+
+    private boolean cancel() {
+        boolean cancel = false;
+        // Store values at the time of the login attempt.
+        email = mEmailView.getText();
+        password = mPasswordView.getText();
+
+        // Check for a valid text_password, if the user entered one.
+        if (TextUtils.isEmpty(password)) {
+            mPasswordView.setError(getString(R.string.error_invalid_password));
+            focusView = mPasswordView;
+            cancel = true;
+        }
+
+        // Check for a valid email address.
+        if (TextUtils.isEmpty(email)) {
+            mEmailView.setError(getString(R.string.error_invalid_email));
+            focusView = mEmailView;
+            cancel = true;
+        }
+        return cancel;
     }
 
 
