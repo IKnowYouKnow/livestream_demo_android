@@ -2,12 +2,15 @@ package cn.ucai.live;
 
 import android.app.Application;
 import android.content.Intent;
-import cn.ucai.live.ui.activity.MainActivity;
+
 import com.hyphenate.EMConnectionListener;
 import com.hyphenate.EMError;
 import com.hyphenate.chat.EMClient;
 import com.hyphenate.easeui.controller.EaseUI;
 import com.ucloud.ulive.UStreamingContext;
+
+import cn.ucai.live.ui.activity.MainActivity;
+import cn.ucai.live.utils.PreferenceManager;
 
 /**
  * Created by wei on 2016/5/27.
@@ -39,7 +42,7 @@ public class LiveApplication extends Application{
     //options.setRestServer("120.26.4.73:81");
     //options.setIMServer("120.26.4.73");
     //options.setImPort(6717);
-
+    PreferenceManager.init(this);
     EaseUI.getInstance().init(this, null);
     EMClient.getInstance().setDebugMode(true);
 

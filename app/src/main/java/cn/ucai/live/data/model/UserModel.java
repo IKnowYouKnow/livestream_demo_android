@@ -29,7 +29,7 @@ public class UserModel implements IUserModel {
     @Override
     public void unregister(Context context, String username, OnCompleteListener<String> listener) {
         OkHttpUtils<String> utils = new OkHttpUtils<>(context);
-        utils.setRequestUrl(I.REQUEST_REGISTER)
+        utils.setRequestUrl(I.REQUEST_UNREGISTER)
                 .addParam(I.User.USER_NAME, username)
                 .targetClass(String.class)
                 .execute(listener);
@@ -38,7 +38,7 @@ public class UserModel implements IUserModel {
     @Override
     public void login(Context context, String username, String password, OnCompleteListener<String> listener) {
         OkHttpUtils<String> utils = new OkHttpUtils<>(context);
-        utils.setRequestUrl(I.REQUEST_REGISTER)
+        utils.setRequestUrl(I.REQUEST_LOGIN)
                 .addParam(I.User.USER_NAME, username)
                 .addParam(I.User.PASSWORD, MD5.getMessageDigest(password))
                 .targetClass(String.class)

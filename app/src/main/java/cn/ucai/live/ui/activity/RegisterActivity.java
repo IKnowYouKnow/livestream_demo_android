@@ -52,7 +52,6 @@ public class RegisterActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
         ButterKnife.bind(this);
-        PreferenceManager.init(RegisterActivity.this);
         mModel = new UserModel();
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -83,7 +82,6 @@ public class RegisterActivity extends BaseActivity {
                             pd.dismiss();
                             showToast("注册成功");
                             PreferenceManager.getInstance().setCurrentUserName(mUserName);
-                            PreferenceManager.getInstance().setCurrentUserNick(mNick);
                             MFGT.gotoLoginActivity(RegisterActivity.this);
                         }
                     });
