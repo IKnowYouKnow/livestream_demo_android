@@ -14,18 +14,21 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import com.bumptech.glide.Glide;
+import com.hyphenate.exceptions.HyphenateException;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import com.bumptech.glide.Glide;
 import cn.ucai.live.R;
 import cn.ucai.live.ThreadPoolManager;
 import cn.ucai.live.data.model.LiveRoom;
 import cn.ucai.live.data.restapi.ApiManager;
 import cn.ucai.live.data.restapi.model.ResponseModule;
 import cn.ucai.live.ui.GridMarginDecoration;
-import com.hyphenate.exceptions.HyphenateException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -76,9 +79,17 @@ public class LiveListFragment extends Fragment {
                 }
             }
         });
-
+        getAllGifts();
     }
 
+    public void getAllGifts() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                ApiManager.get().getAllGifts();
+            }
+        }).start();
+    }
 
     private void showLiveList(final boolean isLoadMore){
         if(!isLoadMore)
