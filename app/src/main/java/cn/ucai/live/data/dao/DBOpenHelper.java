@@ -13,7 +13,7 @@ public class DBOpenHelper extends SQLiteOpenHelper {
     private static String DB_NAME = "db_gift";
 
     private static String CREATE_GIFT_TABLE = "create table "+ GiftDao.TAB_NAME
-            +" ("+ GiftDao.COLUMN_ID +" integer primary,"
+            +" ("+ GiftDao.COLUMN_ID +" integer primary key,"
             + GiftDao.COLUMN_GNAME+" TEXT ,"
             + GiftDao.COLUMN_GURL + " TEXT,"
             + GiftDao.COLUMN_GPRICE+ "integer"

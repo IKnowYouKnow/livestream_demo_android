@@ -12,6 +12,17 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import com.hyphenate.EMValueCallBack;
+import com.hyphenate.chat.EMChatRoom;
+import com.hyphenate.chat.EMClient;
+import com.hyphenate.easeui.controller.EaseUI;
+import com.hyphenate.easeui.domain.User;
+import com.ucloud.ulive.UFilterProfile;
+import com.ucloud.ulive.UNetworkListener;
+import com.ucloud.ulive.UStreamStateListener;
+import com.ucloud.ulive.UVideoProfile;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -20,14 +31,6 @@ import cn.ucai.live.data.restapi.ApiManager;
 import cn.ucai.live.data.restapi.LiveException;
 import cn.ucai.live.ucloud.AVOption;
 import cn.ucai.live.ucloud.LiveCameraView;
-import com.hyphenate.EMValueCallBack;
-import com.hyphenate.chat.EMChatRoom;
-import com.hyphenate.chat.EMClient;
-import com.hyphenate.easeui.controller.EaseUI;
-import com.ucloud.ulive.UFilterProfile;
-import com.ucloud.ulive.UNetworkListener;
-import com.ucloud.ulive.UStreamStateListener;
-import com.ucloud.ulive.UVideoProfile;
 
 public class LiveAnchorActivity extends LiveBaseActivity {
     private static final String TAG = LiveAnchorActivity.class.getSimpleName();
@@ -161,7 +164,8 @@ public class LiveAnchorActivity extends LiveBaseActivity {
         ImageView closeConfirmView =
                 (ImageView) liveEndView.findViewById(R.id.img_finish_confirmed);
         TextView watchedCountView = (TextView) liveEndView.findViewById(R.id.txt_watched_count);
-        usernameView.setText(EMClient.getInstance().getCurrentUser());
+        User user = ApiManager.get().loadUserInfo(EMClient.getInstance().getCurrentUser());
+        usernameView.setText(user.getMUserNick()==null?user.getMUserName():user.getMUserNick());
         watchedCountView.setText(watchedCount + "人看过");
 
         liveContinueBtn.setOnClickListener(new View.OnClickListener() {

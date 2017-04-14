@@ -8,6 +8,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -111,15 +112,33 @@ public class LoginActivity extends BaseActivity {
      * errors are presented and no actual login attempt is made.
      */
     Editable email;
-    Editable password;
-    View focusView = null;
     private void attemptLogin() {
         // Reset errors.
         mEmailView.setError(null);
         mPasswordView.setError(null);
 
+        // Store values at the time of the login attempt.
+        email = mEmailView.getText();
+        Editable password = mPasswordView.getText();
 
-        if (cancel()) {
+        boolean cancel = false;
+        View focusView = null;
+
+        // Check for a valid text_password, if the user entered one.
+        if (TextUtils.isEmpty(password)) {
+            mPasswordView.setError(getString(R.string.error_invalid_password));
+            focusView = mPasswordView;
+            cancel = true;
+        }
+
+        // Check for a valid email address.
+        if (TextUtils.isEmpty(email)) {
+            mEmailView.setError(getString(R.string.error_invalid_email));
+            focusView = mEmailView;
+            cancel = true;
+        }
+
+        if (cancel) {
             // There was an error; don't attempt login and focus the first
             // form field with an error.
             focusView.requestFocus();
@@ -131,8 +150,8 @@ public class LoginActivity extends BaseActivity {
                 @Override
                 public void onSuccess() {
                     PreferenceManager.getInstance().setCurrentUserName(email.toString());
+                    Log.i("main", "保存到sp");
                     LiveHelper.getInstance().getUserProfileManager().asyncGetCurrentAppUserInfo();
-                    LiveHelper.getInstance().syncLoadGiftList();
                     startActivity(new Intent(LoginActivity.this, MainActivity.class));
                     finish();
                 }
@@ -156,29 +175,6 @@ public class LoginActivity extends BaseActivity {
 
         }
     }
-
-    private boolean cancel() {
-        boolean cancel = false;
-        // Store values at the time of the login attempt.
-        email = mEmailView.getText();
-        password = mPasswordView.getText();
-
-        // Check for a valid text_password, if the user entered one.
-        if (TextUtils.isEmpty(password)) {
-            mPasswordView.setError(getString(R.string.error_invalid_password));
-            focusView = mPasswordView;
-            cancel = true;
-        }
-
-        // Check for a valid email address.
-        if (TextUtils.isEmpty(email)) {
-            mEmailView.setError(getString(R.string.error_invalid_email));
-            focusView = mEmailView;
-            cancel = true;
-        }
-        return cancel;
-    }
-
 
     /**
      * Shows the progress UI and hides the login form.
