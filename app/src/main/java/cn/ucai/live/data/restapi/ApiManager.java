@@ -168,21 +168,17 @@ public class ApiManager {
     }
 
     public User loadUserInfo(String username){
-        User user = null;
         Call<String> call = mLiveService.loadUserInfo(username);
         try {
-            Response<String> response = call.execute();
-            Log.i("main", "ApiManager,loadUserInfo,response=" + response);
-            String body = response.body();
-            Result result = ResultUtils.getResultFromJson(body, User.class);
+            Result<User> result = handleResponseCallToResult(call, User.class);
             if (result != null && result.isRetMsg()) {
-                user = (User) result.getRetData();
-
+                return result.getRetData();
             }
-        } catch (IOException e) {
+
+        } catch (LiveException e) {
             e.printStackTrace();
         }
-        return user;
+        return null;
     }
     public void updateLiveRoomCover(String roomId, String coverUrl) throws LiveException {
         JSONObject jobj = new JSONObject();
@@ -310,6 +306,22 @@ public class ApiManager {
         } catch (IOException e) {
             throw new LiveException(e.getMessage());
         }
+    }
+    private <T> Result<T>handleResponseCallToResult(Call<String> responseCall,Class<T> clazz) throws LiveException{
+        try {
+            Response<String> response = responseCall.execute();
+            if(!response.isSuccessful()){
+                throw new LiveException(response.code(), response.errorBody().string());
+            }
+            String body = response.body();
+            Result<T> result = ResultUtils.getResultFromJson(body, clazz);
+            return result;
+        } catch (IOException e) {
+            throw new LiveException(e.getMessage());
+        }catch (LiveException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     private RequestBody jsonToRequestBody(String jsonStr){

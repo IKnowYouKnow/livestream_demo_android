@@ -2,8 +2,6 @@ package cn.ucai.live.utils;
 
 import android.util.Log;
 
-import cn.ucai.live.I;
-import cn.ucai.live.data.model.Result;
 import com.google.gson.Gson;
 
 import org.json.JSONArray;
@@ -14,12 +12,15 @@ import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.ucai.live.I;
+import cn.ucai.live.data.model.Result;
+
 /**
  * Created by clawpo on 2016/9/21.
  */
 public class ResultUtils {
-    public static <T> Result getResultFromJson(String jsonStr, Class<T> clazz){
-        Result result = new Result();
+    public static <T> Result<T> getResultFromJson(String jsonStr, Class<T> clazz){
+        Result<T> result = new Result();
         try {
             JSONObject jsonObject = new JSONObject(jsonStr);
             result.setRetCode(jsonObject.getInt("retCode"));
@@ -51,8 +52,8 @@ public class ResultUtils {
         return  null;
     }
 
-    public static <T> Result getListResultFromJson(String jsonStr, Class<T> clazz){
-        Result result = new Result();
+    public static <T> Result<List<T>> getListResultFromJson(String jsonStr, Class<T> clazz){
+        Result<List<T>> result = new Result();
         Log.e("Utils","jsonStr="+jsonStr);
         try {
             JSONObject jsonObject = new JSONObject(jsonStr);
