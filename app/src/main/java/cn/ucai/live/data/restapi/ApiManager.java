@@ -5,6 +5,7 @@ import android.content.pm.PackageManager;
 import android.util.Log;
 
 import com.hyphenate.chat.EMClient;
+import com.hyphenate.easeui.domain.User;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -32,6 +33,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.converter.scalars.ScalarsConverterFactory;
 
 /**
  * Created by wei on 2017/2/14.
@@ -71,7 +73,7 @@ public class ApiManager {
 
         Retrofit liveRetrofit = new Retrofit.Builder()
                 .baseUrl(I.SERVER_ROOT)
-                .addConverterFactory(GsonConverterFactory.create())
+                .addConverterFactory(ScalarsConverterFactory.create())
                 .client(httpClient)
                 .build();
 
@@ -151,7 +153,7 @@ public class ApiManager {
                         List<Gift> gifts = (List<Gift>) result.getRetData();
                         if (gifts!=null) {
                             for (Gift gift : gifts) {
-                                Log.i("main","ApiManager.getAllGifts:");
+                                Log.i("main","ApiManager.getAllGifts:gift="+gift);
                             }
                         }
                     }
@@ -165,19 +167,22 @@ public class ApiManager {
         });
     }
 
-    public void loadUserInfo(String username){
+    public User loadUserInfo(String username){
+        User user = null;
         Call<String> call = mLiveService.loadUserInfo(username);
-        call.enqueue(new Callback<String>() {
-            @Override
-            public void onResponse(Call<String> call, Response<String> response) {
-                String body = response.body();
-            }
+        try {
+            Response<String> response = call.execute();
+            Log.i("main", "ApiManager,loadUserInfo,response=" + response);
+            String body = response.body();
+            Result result = ResultUtils.getResultFromJson(body, User.class);
+            if (result != null && result.isRetMsg()) {
+                user = (User) result.getRetData();
 
-            @Override
-            public void onFailure(Call<String> call, Throwable t) {
-
             }
-        });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return user;
     }
     public void updateLiveRoomCover(String roomId, String coverUrl) throws LiveException {
         JSONObject jobj = new JSONObject();

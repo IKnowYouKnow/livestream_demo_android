@@ -15,6 +15,7 @@ import cn.ucai.live.data.model.IUserModel;
 import cn.ucai.live.data.model.OnCompleteListener;
 import cn.ucai.live.data.model.Result;
 import cn.ucai.live.data.model.UserModel;
+import cn.ucai.live.data.restapi.ApiManager;
 import cn.ucai.live.utils.CommonUtils;
 import cn.ucai.live.utils.PreferenceManager;
 import cn.ucai.live.utils.ResultUtils;
@@ -145,28 +146,40 @@ public class UserProfileManager {
     }
     public void asyncGetCurrentAppUserInfo() {
         Log.i("main","UserProfileManager,asyncGetCurrentAppUserInfo,username="+ EMClient.getInstance().getCurrentUser());
-        mModel.loadUserInfo(appContext, EMClient.getInstance().getCurrentUser(), new OnCompleteListener<String>() {
+        new Thread(new Runnable() {
             @Override
-            public void onSuccess(String s) {
-                if (s != null) {
-                    Result result = ResultUtils.getResultFromJson(s, User.class);
-                    if (result != null && result.isRetMsg()) {
-                        Log.e(TAG, "onSuccess: result=" + result);
-                        User user = (User) result.getRetData();
-                        if (user != null) {
-                            updateUserInfo(user);
-                            currentAppUser.cloneByOther(user);
-                            Log.i("main", "UserProfileManager,asyncGetCurrentAppUserInfo,user=" + user);
-                        }
-                    }
+            public void run() {
+                User user = ApiManager.get().loadUserInfo(EMClient.getInstance().getCurrentUser());
+                if (user != null) {
+                    updateUserInfo(user);
+                    currentAppUser.cloneByOther(user);
+                    Log.i(TAG,"asyncGetCurrentAppUserInfo,user = "+user);
                 }
             }
+        }).start();
 
-            @Override
-            public void onError(String error) {
-
-            }
-        });
+//        mModel.loadUserInfo(appContext, EMClient.getInstance().getCurrentUser(), new OnCompleteListener<String>() {
+//            @Override
+//            public void onSuccess(String s) {
+//                if (s != null) {
+//                    Result result = ResultUtils.getResultFromJson(s, User.class);
+//                    if (result != null && result.isRetMsg()) {
+//                        Log.e(TAG, "onSuccess: result=" + result);
+//                        User user = (User) result.getRetData();
+//                        if (user != null) {
+//                            updateUserInfo(user);
+//                            currentAppUser.cloneByOther(user);
+//                            Log.i("main", "UserProfileManager,asyncGetCurrentAppUserInfo,user=" + user);
+//                        }
+//                    }
+//                }
+//            }
+//
+//            @Override
+//            public void onError(String error) {
+//
+//            }
+//        });
     }
 
     private void setCurrentAppUserNick(String nick) {
