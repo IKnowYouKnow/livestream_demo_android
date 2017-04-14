@@ -17,9 +17,16 @@ import com.hyphenate.easeui.domain.User;
 import com.hyphenate.easeui.utils.EaseCommonUtils;
 import com.hyphenate.util.EMLog;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import cn.ucai.live.LiveConstants;
+import cn.ucai.live.data.dao.LiveDbManager;
+import cn.ucai.live.data.model.Gift;
 import cn.ucai.live.data.model.IUserModel;
 import cn.ucai.live.data.model.UserModel;
+import cn.ucai.live.data.restapi.ApiManager;
 import cn.ucai.live.ui.activity.MainActivity;
 import cn.ucai.live.utils.PreferenceManager;
 
@@ -52,10 +59,11 @@ public class LiveHelper {
 
     private LiveModel demoModel = null;
 
-
     private String username;
 
     private Context appContext;
+
+    private Map<Integer, Gift> mGiftMap;
 
     private IUserModel mModel;
 
@@ -97,6 +105,7 @@ public class LiveHelper {
             broadcastManager = LocalBroadcastManager.getInstance(appContext);
         }
     }
+
     private EMOptions initChatOptions() {
         Log.d(TAG, "init HuanXin Options");
 
@@ -267,8 +276,50 @@ public class LiveHelper {
         return userProManager;
     }
 
+    public void saveGifts(List<Gift> list) {
+        demoModel.saveGifts(list);
+        for (Gift gift : list) {
+            mGiftMap.put(gift.getId(), gift);
+        }
+    }
+
+    public Map<Integer, Gift> getGifts() {
+        if (mGiftMap == null) {
+            mGiftMap = demoModel.getGifts();
+        }
+        if (mGiftMap == null) {
+            mGiftMap = new HashMap<>();
+        }
+        return mGiftMap;
+    }
+
+    public void syncLoadGiftList() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                mGiftMap.clear();
+                List<Gift> list = ApiManager.get().getAllGifts();
+                if (list != null && list.size() > 0) {
+                    for (Gift gift : list) {
+                        // save gifts to cache
+                        mGiftMap.put(gift.getId(), gift);
+                    }
+                    //save gifts to database
+                    demoModel.saveGifts(list);
+                }
+            }
+        }).start();
+    }
+
+    public void deleteGift(int giftId) {
+        demoModel.deteleGift(giftId);
+        mGiftMap.remove(giftId);
+    }
+
     synchronized void reset() {
         getUserProfileManager().reset();
+        LiveDbManager.getInstance().closeDB();
+        mGiftMap.clear();
     }
 
 }

@@ -67,5 +67,10 @@ public class LiveDbManager {
         if (db.isOpen())
         db.rawQuery("delete " + GiftDao.TAB_NAME + " where " + GiftDao.COLUMN_ID + " = " + giftId, null);
     }
-
+    synchronized public void closeDB(){
+        if(mOpenHelper != null){
+            mOpenHelper.closeDb();
+        }
+        dbManager = null;
+    }
 }

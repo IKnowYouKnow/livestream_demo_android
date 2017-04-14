@@ -149,19 +149,20 @@ public class ApiManager {
         return liveRoom;
     }
 
-    public void getAllGifts() {
+    public List<Gift> getAllGifts() {
         Call<String> call = mLiveService.getAllGifts();
         try {
             Result<List<Gift>> result = handleResponseCallToListResult(call, Gift.class);
             if (result != null && result.isRetMsg()) {
                 List<Gift> gifts = result.getRetData();
-                for (Gift gift : gifts) {
-                    L.e("test,getAllGifts,gift="+gift);
+                if (gifts != null) {
+                    return gifts;
                 }
             }
         } catch (LiveException e) {
             e.printStackTrace();
         }
+        return null;
     }
 
     public User loadUserInfo(String username) {
