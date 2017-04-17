@@ -160,26 +160,22 @@ public class LiveAnchorActivity extends LiveBaseActivity {
     }
 
     private View liveEndView;
+    private finishLayout mFinishLayout;
 
     private void showConfirmCloseLayout() {
+        liveEndLayout.setLayoutResource(R.layout.live_finish_layout);
         if (liveEndView == null) {
             liveEndView = liveEndLayout.inflate();
+            mFinishLayout = new finishLayout(liveEndView);
         }
         liveContainer.setVisibility(View.INVISIBLE);
         liveEndView.setVisibility(View.VISIBLE);
-        Button liveContinueBtn = (Button) liveEndView.findViewById(R.id.live_close_confirm);
-        TextView usernameView = (TextView) liveEndView.findViewById(R.id.tv_username);
-        EaseImageView userAvatar = (EaseImageView) liveEndView.findViewById(R.id.iv_user_avatar);
-        ImageView closeConfirmView =
-                (ImageView) liveEndView.findViewById(R.id.img_finish_confirmed);
-        TextView watchedCountView = (TextView) liveEndView.findViewById(R.id.txt_watched_count);
-//        User user = ApiManager.get().loadUserInfo(EMClient.getInstance().getCurrentUser());
-//        usernameView.setText(user.getMUserNick() == null ? user.getMUserName() : user.getMUserNick());
-        EaseUserUtils.setAppUserNick(EMClient.getInstance().getCurrentUser(),usernameView);
-        EaseUserUtils.setAppUserAvatar(LiveAnchorActivity.this,EMClient.getInstance().getCurrentUser(),userAvatar);
-        watchedCountView.setText(watchedCount + "人看过");
+        EaseUserUtils.setAppUserNick(EMClient.getInstance().getCurrentUser(), mFinishLayout.mTvUsername);
+        EaseUserUtils.setAppUserAvatar(LiveAnchorActivity.this,
+                EMClient.getInstance().getCurrentUser(), mFinishLayout.mIvUserAvatar);
+        mFinishLayout.mTxtWatchedCount.setText(watchedCount + "人看过");
 
-        liveContinueBtn.setOnClickListener(new View.OnClickListener() {
+        mFinishLayout.mLiveCloseConfirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 liveEndView.setVisibility(View.GONE);
@@ -190,7 +186,7 @@ public class LiveAnchorActivity extends LiveBaseActivity {
                 }
             }
         });
-        closeConfirmView.setOnClickListener(new View.OnClickListener() {
+        mFinishLayout.mImgFinishConfirmed.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 finish();
@@ -356,10 +352,21 @@ public class LiveAnchorActivity extends LiveBaseActivity {
         }
     };
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        // TODO: add setContentView(...) invocation
-        ButterKnife.bind(this);
+
+    class finishLayout {
+        @BindView(R.id.img_finish_confirmed)
+        ImageView mImgFinishConfirmed;
+        @BindView(R.id.iv_user_avatar)
+        EaseImageView mIvUserAvatar;
+        @BindView(R.id.tv_username)
+        TextView mTvUsername;
+        @BindView(R.id.txt_watched_count)
+        TextView mTxtWatchedCount;
+        @BindView(R.id.live_close_confirm)
+        Button mLiveCloseConfirm;
+
+        finishLayout(View view) {
+            ButterKnife.bind(this, view);
+        }
     }
 }
