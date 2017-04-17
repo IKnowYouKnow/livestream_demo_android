@@ -18,11 +18,15 @@ public interface LiveService {
 
     @GET("live/createChatRoom")
     Call<String> createChatRoom(@Query("auth") String auth,
-                                @Query("name")String name,
-                                @Query("description")String des,
-                                @Query("owner")String owner,
-                                @Query("maxusers")int maxusers,
-                                @Query("members")String members
+                                @Query("name") String name,
+                                @Query("description") String des,
+                                @Query("owner") String owner,
+                                @Query("maxusers") int maxusers,
+                                @Query("members") String members
     );
+
+    @GET("live/deleteChatRoom")
+    Call<String> deleteLiveRoom(@Query("auth") String auth,
+                                @Query("chatRoomId") String liveRoomId);
 
 }

@@ -160,13 +160,13 @@ public class LiveAnchorActivity extends LiveBaseActivity {
     }
 
     private View liveEndView;
-    private finishLayout mFinishLayout;
+    private FinishLayout mFinishLayout;
 
     private void showConfirmCloseLayout() {
         liveEndLayout.setLayoutResource(R.layout.live_finish_layout);
         if (liveEndView == null) {
             liveEndView = liveEndLayout.inflate();
-            mFinishLayout = new finishLayout(liveEndView);
+            mFinishLayout = new FinishLayout(liveEndView);
         }
         liveContainer.setVisibility(View.INVISIBLE);
         liveEndView.setVisibility(View.VISIBLE);
@@ -299,7 +299,7 @@ public class LiveAnchorActivity extends LiveBaseActivity {
                     .removeChatRoomChangeListener(chatRoomChangeListener);
         }
         EMClient.getInstance().chatroomManager().leaveChatRoom(chatroomId);
-
+        ApiManager.get().deleteLiveRoom(chatroomId);
         executeRunnable(new Runnable() {
             @Override
             public void run() {
@@ -353,7 +353,7 @@ public class LiveAnchorActivity extends LiveBaseActivity {
     };
 
 
-    class finishLayout {
+    class FinishLayout {
         @BindView(R.id.img_finish_confirmed)
         ImageView mImgFinishConfirmed;
         @BindView(R.id.iv_user_avatar)
@@ -365,7 +365,7 @@ public class LiveAnchorActivity extends LiveBaseActivity {
         @BindView(R.id.live_close_confirm)
         Button mLiveCloseConfirm;
 
-        finishLayout(View view) {
+        FinishLayout(View view) {
             ButterKnife.bind(this, view);
         }
     }

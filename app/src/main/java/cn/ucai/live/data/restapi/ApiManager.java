@@ -29,6 +29,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import retrofit2.Call;
+import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -163,6 +164,21 @@ public class ApiManager {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public void deleteLiveRoom(String liveRoomId) {
+        Call<String> call = mLiveService.deleteLiveRoom("1IFgE", liveRoomId);
+        call.enqueue(new Callback<String>() {
+            @Override
+            public void onResponse(Call<String> call, Response<String> response) {
+                boolean deleteResult = ResultUtils.getDeleteResult(response.body());
+            }
+
+            @Override
+            public void onFailure(Call<String> call, Throwable t) {
+
+            }
+        });
     }
 
     public User loadUserInfo(String username) {

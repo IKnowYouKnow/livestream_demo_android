@@ -30,8 +30,6 @@ import cn.ucai.live.data.restapi.ApiManager;
 import cn.ucai.live.ui.activity.MainActivity;
 import cn.ucai.live.utils.PreferenceManager;
 
-import static com.hyphenate.easeui.utils.EaseUserUtils.getAppUserInfo;
-
 public class LiveHelper {
     /**
      * data sync listener
@@ -142,7 +140,27 @@ public class LiveHelper {
             }
         });
     }
+    private User getAppUserInfo(String username) {
+        Log.i("main", "getAppUserInfo,username=" + username);
+        // To get instance of EaseUser, here we get it from the user list in memory
+        // You'd better cache it if you get it from your server
+        User user = null;
+        if (username.equals(EMClient.getInstance().getCurrentUser()))
+            return getUserProfileManager().getCurrentAppUser();
+        user = ApiManager.get().loadUserInfo(username);
+//        if(user == null && getRobotList() != null){
+//            user = getRobotList().get(username);
+//        }
+        Log.i("main", "getAppUserInfo,user=" + user);
 
+        // if user is not in your contacts, set inital letter for him/her
+        if (user == null) {
+            user = new User(username);
+            EaseCommonUtils.setAppUserInitialLetter(user);
+        }
+        Log.i("main", "getAppUserInfo,user=" + user);
+        return user;
+    }
     EMConnectionListener connectionListener;
 
     /**

@@ -69,7 +69,21 @@ public class ResultUtils {
         }
         return null;
     }
-
+    public static boolean getDeleteResult(String jsonStr) {
+        try {
+            JSONObject jsonObject = new JSONObject(jsonStr);
+            if (!jsonObject.isNull("data")) {
+                JSONObject jsonRetData = jsonObject.getJSONObject("data");
+                if (!jsonRetData.isNull("success")) {
+                    Log.e("Utils", "=" + jsonRetData);
+                    return jsonRetData.getBoolean("success");
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 
     public static <T> Result<List<T>> getListResultFromJson(String jsonStr, Class<T> clazz) {
         Result<List<T>> result = new Result();

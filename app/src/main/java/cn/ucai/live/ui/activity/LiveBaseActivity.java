@@ -107,7 +107,7 @@ public abstract class LiveBaseActivity extends BaseActivity {
         anchorId = liveRoom.getAnchorId();
         onActivityCreate(savedInstanceState);
         initAnchorInfo();
-        usernameView.setText(anchorId);
+//        usernameView.setText(anchorId);
         liveIdView.setText(liveId);
         audienceNumView.setText(String.valueOf(liveRoom.getAudienceNum()));
         watchedCount = liveRoom.getAudienceNum();
