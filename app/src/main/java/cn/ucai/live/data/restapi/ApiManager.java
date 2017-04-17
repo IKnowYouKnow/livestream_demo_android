@@ -208,7 +208,7 @@ public class ApiManager {
 
     public String createChatRoom(String name, String des) {
        return createChatRoom("1IFgE", name, des, EMClient.getInstance().getCurrentUser(), 300,
-                EMClient.getInstance().getCurrentUser());
+                EMClient.getInstance().getCurrentUser()+",zhu123456,qq12321qq");
     }
 
     public void updateLiveRoomCover(String roomId, String coverUrl) throws LiveException {
