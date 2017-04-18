@@ -15,6 +15,7 @@ import java.util.List;
 
 import cn.ucai.live.I;
 import cn.ucai.live.LiveApplication;
+import cn.ucai.live.LiveConstants;
 import cn.ucai.live.data.LiveService;
 import cn.ucai.live.data.model.Gift;
 import cn.ucai.live.data.model.LiveRoom;
@@ -125,7 +126,7 @@ public class ApiManager {
         liveRoom.setCover(coverUrl);
         String cover = coverUrl.substring(coverUrl.lastIndexOf("/")+1);
         Log.i("main", "cover=" + cover);
-        String sname = name +"#live201612#"+ cover;
+        String sname = name + LiveConstants.LIVE_COVER+ cover;
 
         String roomId = createChatRoom(sname, description);
         if (roomId != null) {

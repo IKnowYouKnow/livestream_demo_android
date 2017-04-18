@@ -26,6 +26,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import cn.ucai.live.LiveConstants;
 import cn.ucai.live.R;
 import cn.ucai.live.ThreadPoolManager;
 import cn.ucai.live.data.model.LiveRoom;
@@ -230,13 +231,12 @@ public class LiveListFragment extends Fragment {
             liveRoom = new LiveRoom();
             liveRoom.setId(room.getOwner());
             liveRoom.setChatroomId(room.getId());
-            String s = "#live201612#";
-            if (room.getName().indexOf(s) > 0) {
-                int index = room.getName().indexOf(s);
+            if (room.getName().indexOf(LiveConstants.LIVE_COVER) > 0) {
+                int index = room.getName().indexOf(LiveConstants.LIVE_COVER);
                 String name = room.getName().substring(0, index);
-                String cover = room.getName().substring(index + s.length());
+                String cover = room.getName().substring(index + LiveConstants.LIVE_COVER.length());
                 liveRoom.setName(name);
-                liveRoom.setCover("http://a1.easemob.com/i/superwechat201612/chatfiles/"+cover);
+                liveRoom.setCover(LiveConstants.LIVE_PREFIX+cover);
             }else {
                 liveRoom.setName(room.getName());
             }
