@@ -22,7 +22,6 @@ import cn.ucai.live.data.model.Result;
 import cn.ucai.live.data.restapi.model.LiveStatusModule;
 import cn.ucai.live.data.restapi.model.ResponseModule;
 import cn.ucai.live.data.restapi.model.StatisticsType;
-import cn.ucai.live.ucloud.AVOption;
 import cn.ucai.live.utils.L;
 import cn.ucai.live.utils.ResultUtils;
 import okhttp3.Interceptor;
@@ -133,8 +132,8 @@ public class ApiManager {
             L.e("test,roomId=" + roomId);
             liveRoom.setId(roomId);
             liveRoom.setChatroomId(roomId);
-            liveRoom.setLivePullUrl(AVOption.pullUrl);
-            liveRoom.setLivePushUrl(AVOption.playUrl);
+            liveRoom.setLivePullUrl(liveRoom.getLivePullUrl());
+            liveRoom.setLivePushUrl(liveRoom.getLivePushUrl());
         } else {
             liveRoom.setId(liveRoomId);
         }
