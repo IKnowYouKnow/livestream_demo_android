@@ -185,6 +185,8 @@ public class RoomUserDetailsDialog extends DialogFragment {
                     @Override
                     public void onSuccess(EMChatRoom value) {
                         showToast("设置房管成功");
+                        setAdminButton.setAlpha(0.3f);
+                        setAdminButton.setEnabled(false);
                     }
 
                     @Override
