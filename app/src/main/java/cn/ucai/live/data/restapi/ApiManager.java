@@ -2,7 +2,6 @@ package cn.ucai.live.data.restapi;
 
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import android.util.Log;
 
 import com.hyphenate.chat.EMClient;
 import com.hyphenate.easeui.domain.User;
@@ -22,6 +21,7 @@ import cn.ucai.live.data.model.Result;
 import cn.ucai.live.data.restapi.model.LiveStatusModule;
 import cn.ucai.live.data.restapi.model.ResponseModule;
 import cn.ucai.live.data.restapi.model.StatisticsType;
+import cn.ucai.live.ucloud.AVOption;
 import cn.ucai.live.utils.L;
 import cn.ucai.live.utils.ResultUtils;
 import okhttp3.Interceptor;
@@ -124,15 +124,15 @@ public class ApiManager {
         liveRoom.setAnchorId(EMClient.getInstance().getCurrentUser());
         liveRoom.setCover(coverUrl);
         String cover = coverUrl.substring(coverUrl.indexOf("/"));
-        Log.i("main", "Apimanager,cover="+cover);
         String sname = name +"#live201612#"+ cover;
-        Log.i("main", "Apimanager,sname="+sname);
 
         String roomId = createChatRoom(sname, description);
         if (roomId != null) {
             L.e("test,roomId=" + roomId);
             liveRoom.setId(roomId);
             liveRoom.setChatroomId(roomId);
+            liveRoom.setLivePullUrl(AVOption.pullUrl);
+            liveRoom.setLivePushUrl(AVOption.playUrl);
         } else {
             liveRoom.setId(liveRoomId);
         }

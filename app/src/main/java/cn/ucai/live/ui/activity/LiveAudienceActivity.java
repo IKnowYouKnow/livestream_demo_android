@@ -9,20 +9,8 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
-import cn.ucai.live.LiveConstants;
-import cn.ucai.live.data.restapi.ApiManager;
-import cn.ucai.live.data.restapi.LiveException;
-import cn.ucai.live.data.restapi.model.LiveStatusModule;
-import cn.ucai.live.data.restapi.model.StatisticsType;
 
 import com.bumptech.glide.Glide;
-
-import cn.ucai.live.R;
-import cn.ucai.live.ThreadPoolManager;
-
 import com.hyphenate.EMError;
 import com.hyphenate.EMValueCallBack;
 import com.hyphenate.chat.EMChatRoom;
@@ -34,7 +22,19 @@ import com.hyphenate.exceptions.HyphenateException;
 import com.ucloud.uvod.UMediaProfile;
 import com.ucloud.uvod.UPlayerStateListener;
 import com.ucloud.uvod.widget.UVideoView;
+
 import java.util.Random;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import cn.ucai.live.LiveConstants;
+import cn.ucai.live.R;
+import cn.ucai.live.ThreadPoolManager;
+import cn.ucai.live.data.restapi.ApiManager;
+import cn.ucai.live.data.restapi.LiveException;
+import cn.ucai.live.data.restapi.model.LiveStatusModule;
+import cn.ucai.live.data.restapi.model.StatisticsType;
 
 public class LiveAudienceActivity extends LiveBaseActivity implements UPlayerStateListener {
 
@@ -62,7 +62,10 @@ public class LiveAudienceActivity extends LiveBaseActivity implements UPlayerSta
         connect();
     }
     private void connect(){
-        connectChatServer();
+//        connectChatServer();
+        loadingLayout.setVisibility(View.INVISIBLE);
+        connectLiveStream();
+        joinChatRoom();
     }
 
     private void connectChatServer(){
