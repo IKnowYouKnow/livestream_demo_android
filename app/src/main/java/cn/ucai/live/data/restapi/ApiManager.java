@@ -122,13 +122,15 @@ public class ApiManager {
         liveRoom.setDescription(description);
         liveRoom.setAnchorId(EMClient.getInstance().getCurrentUser());
         liveRoom.setCover(coverUrl);
+        String cover = coverUrl.substring(coverUrl.indexOf("/"));
+        String des = description +"#live201612#"+ cover;
 
-        String roomId = createChatRoom(name, description);
+        String roomId = createChatRoom(name, des);
         if (roomId != null) {
-            L.e("test,roomId="+roomId);
+            L.e("test,roomId=" + roomId);
             liveRoom.setId(roomId);
             liveRoom.setChatroomId(roomId);
-        }else {
+        } else {
             liveRoom.setId(liveRoomId);
         }
 //        Call<ResponseModule<LiveRoom>> responseCall;
@@ -218,7 +220,7 @@ public class ApiManager {
     }
 
     public String createChatRoom(String auth, String name, String des, String owner, int maxusers,
-                               String members) {
+                                 String members) {
         Call<String> call = mLiveService.createChatRoom(auth, name, des, owner, maxusers, members);
         try {
             return handleResponseCallToRoomId(call);
@@ -229,8 +231,8 @@ public class ApiManager {
     }
 
     public String createChatRoom(String name, String des) {
-       return createChatRoom("1IFgE", name, des, EMClient.getInstance().getCurrentUser(), 300,
-                EMClient.getInstance().getCurrentUser()+",zhu123456,qq12321qq");
+        return createChatRoom("1IFgE", name, des, EMClient.getInstance().getCurrentUser(), 300,
+                EMClient.getInstance().getCurrentUser() + ",zhu123456,qq12321qq");
     }
 
     public void updateLiveRoomCover(String roomId, String coverUrl) throws LiveException {
@@ -376,6 +378,7 @@ public class ApiManager {
         }
         return null;
     }
+
     private <T> Result<List<T>> handleResponseCallToListResult(Call<String> responseCall, Class<T> clazz) throws LiveException {
         try {
             Response<String> response = responseCall.execute();
@@ -392,6 +395,7 @@ public class ApiManager {
         }
         return null;
     }
+
     private String handleResponseCallToRoomId(Call<String> responseCall) throws LiveException {
         try {
             Response<String> response = responseCall.execute();
@@ -408,6 +412,7 @@ public class ApiManager {
         }
         return null;
     }
+
     private RequestBody jsonToRequestBody(String jsonStr) {
         return RequestBody.create(MediaType.parse("application/json; charset=utf-8"), jsonStr);
     }

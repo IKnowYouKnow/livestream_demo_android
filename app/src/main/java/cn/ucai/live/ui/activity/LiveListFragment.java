@@ -16,6 +16,9 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.hyphenate.chat.EMChatRoom;
+import com.hyphenate.chat.EMClient;
+import com.hyphenate.chat.EMPageResult;
 import com.hyphenate.exceptions.HyphenateException;
 
 import java.util.ArrayList;
@@ -92,6 +95,9 @@ public class LiveListFragment extends Fragment {
     }
 
     private void showLiveList(final boolean isLoadMore){
+        if (getChatRoom()){
+            return;
+        }
         if(!isLoadMore)
             swipeRefreshLayout.setRefreshing(true);
         else
@@ -179,13 +185,59 @@ public class LiveListFragment extends Fragment {
                     .placeholder(R.color.placeholder)
                     .into(holder.imageView);
         }
-
         @Override
         public int getItemCount() {
             return liveRoomList.size();
         }
     }
 
+    private boolean getChatRoom(){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                int pageCount = -1;
+                try {
+                    EMPageResult<EMChatRoom> result = EMClient.getInstance().chatroomManager()
+                            .fetchPublicChatRoomsFromServer(0, 20);
+                    List<EMChatRoom> chatRooms = result.getData();
+                    pageCount = result.getPageCount();
+                    for (EMChatRoom chatRoom : chatRooms) {
+                        LiveRoom liveRoom = chatRoom2LiveRoom(chatRoom);
+                        if (liveRoom != null) {
+                            liveRoomList.add(liveRoom);
+                        }
+                    }
+                    if(adapter == null){
+                        adapter = new PhotoAdapter(getActivity(), liveRoomList);
+                        recyclerView.setAdapter(adapter);
+                    }else{
+                        adapter.notifyDataSetChanged();
+                    }
+                } catch (HyphenateException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+        return true;
+    }
+
+    private LiveRoom chatRoom2LiveRoom(EMChatRoom room) {
+        LiveRoom liveRoom = null;
+        if (room != null) {
+            liveRoom = new LiveRoom();
+            liveRoom.setId(room.getOwner());
+            liveRoom.setChatroomId(room.getId());
+            liveRoom.setName(room.getName());
+//            int index = room.getDescription().indexOf("#live201612#");
+//            String des = room.getDescription().substring(0, index);
+//            String cover = room.getDescription().substring(index + 1);
+            liveRoom.setDescription(room.getDescription());
+//            liveRoom.setCover("https://a1.easemob.com/i/superwechat201612/chatfiles/"+cover);
+            liveRoom.setAnchorId(room.getOwner());
+            liveRoom.setAudienceNum(room.getMemberCount());
+        }
+        return liveRoom;
+    }
     static class PhotoViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.photo)
         ImageView imageView;
