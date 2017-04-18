@@ -8,7 +8,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -234,13 +233,10 @@ public class LiveListFragment extends Fragment {
             String s = "#live201612#";
             if (room.getName().indexOf(s) > 0) {
                 int index = room.getName().indexOf(s);
-                Log.i("main", "LiveListFragment,index=" + index);
-                Log.i("main", "LiveListFragment,name=" + room.getName());
                 String name = room.getName().substring(0, index);
-                Log.i("main", "LiveListFragment,sname=" + name);
                 String cover = room.getName().substring(index + s.length());
                 liveRoom.setName(name);
-                liveRoom.setCover("https://a1.easemob.com/i/superwechat201612/chatfiles/"+cover);
+                liveRoom.setCover("http://a1.easemob.com/i/superwechat201612/chatfiles/"+cover);
             }else {
                 liveRoom.setName(room.getName());
             }
