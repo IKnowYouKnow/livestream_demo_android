@@ -147,10 +147,6 @@ public class LiveHelper {
         User user = null;
         if (username.equals(EMClient.getInstance().getCurrentUser()))
             return getUserProfileManager().getCurrentAppUser();
-        user = ApiManager.get().loadUserInfo(username);
-//        if(user == null && getRobotList() != null){
-//            user = getRobotList().get(username);
-//        }
         Log.i("main", "getAppUserInfo,user=" + user);
 
         // if user is not in your contacts, set inital letter for him/her
