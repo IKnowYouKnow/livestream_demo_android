@@ -35,6 +35,8 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.converter.scalars.ScalarsConverterFactory;
 
+import static cn.ucai.live.utils.ResultUtils.getResultFromJson;
+
 /**
  * Created by wei on 2017/2/14.
  */
@@ -183,6 +185,26 @@ public class ApiManager {
 
     public User loadUserInfo(String username) {
         Call<String> call = mLiveService.loadUserInfo(username);
+//        call.enqueue(new Callback<String>() {
+//            @Override
+//            public void onResponse(Call<String> call, Response<String> response) {
+//                try {
+//                    Result<User> result = handleResponseCallToResult(call, User.class);
+//                    if (result != null && result.isRetMsg()) {
+//                        User user = result.getRetData();
+//
+//                    }
+//                } catch (LiveException e) {
+//                    e.printStackTrace();
+//                }
+//
+//            }
+//
+//            @Override
+//            public void onFailure(Call<String> call, Throwable t) {
+//                CommonUtils.showLongToast(t.getMessage());
+//            }
+//        });
         try {
             Result<User> result = handleResponseCallToResult(call, User.class);
             if (result != null && result.isRetMsg()) {
@@ -345,7 +367,7 @@ public class ApiManager {
                 throw new LiveException(response.code(), response.errorBody().string());
             }
             String body = response.body();
-            Result<T> result = ResultUtils.getResultFromJson(body, clazz);
+            Result<T> result = getResultFromJson(body, clazz);
             return result;
         } catch (IOException e) {
             throw new LiveException(e.getMessage());
