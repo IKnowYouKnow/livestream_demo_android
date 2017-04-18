@@ -8,6 +8,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -201,23 +202,26 @@ public class LiveListFragment extends Fragment {
                             .fetchPublicChatRoomsFromServer(0, 20);
                     List<EMChatRoom> chatRooms = result.getData();
                     pageCount = result.getPageCount();
-                    for (EMChatRoom chatRoom : chatRooms) {
-                        LiveRoom liveRoom = chatRoom2LiveRoom(chatRoom);
-                        if (liveRoom != null) {
-                            liveRoomList.add(liveRoom);
+                    if (chatRooms != null && chatRooms.size() > 0) {
+                        for (EMChatRoom chatRoom : chatRooms) {
+                            LiveRoom liveRoom = chatRoom2LiveRoom(chatRoom);
+                            if (liveRoom != null) {
+                                liveRoomList.add(liveRoom);
+                            }
                         }
                     }
-                    if(adapter == null){
-                        adapter = new PhotoAdapter(getActivity(), liveRoomList);
-                        recyclerView.setAdapter(adapter);
-                    }else{
-                        adapter.notifyDataSetChanged();
-                    }
+
                 } catch (HyphenateException e) {
                     e.printStackTrace();
                 }
             }
         }).start();
+        if(adapter == null){
+            adapter = new PhotoAdapter(getActivity(), liveRoomList);
+            recyclerView.setAdapter(adapter);
+        }else{
+            adapter.notifyDataSetChanged();
+        }
         return true;
     }
 
@@ -227,12 +231,20 @@ public class LiveListFragment extends Fragment {
             liveRoom = new LiveRoom();
             liveRoom.setId(room.getOwner());
             liveRoom.setChatroomId(room.getId());
-            liveRoom.setName(room.getName());
-//            int index = room.getDescription().indexOf("#live201612#");
-//            String des = room.getDescription().substring(0, index);
-//            String cover = room.getDescription().substring(index + 1);
+            String s = "#live201612#";
+            if (room.getName().indexOf(s) > 0) {
+                int index = room.getName().indexOf(s);
+                Log.i("main", "LiveListFragment,index=" + index);
+                Log.i("main", "LiveListFragment,name=" + room.getName());
+                String name = room.getName().substring(0, index);
+                Log.i("main", "LiveListFragment,sname=" + name);
+                String cover = room.getName().substring(index + s.length());
+                liveRoom.setName(name);
+                liveRoom.setCover("https://a1.easemob.com/i/superwechat201612/chatfiles/"+cover);
+            }else {
+                liveRoom.setName(room.getName());
+            }
             liveRoom.setDescription(room.getDescription());
-//            liveRoom.setCover("https://a1.easemob.com/i/superwechat201612/chatfiles/"+cover);
             liveRoom.setAnchorId(room.getOwner());
             liveRoom.setAudienceNum(room.getMemberCount());
         }

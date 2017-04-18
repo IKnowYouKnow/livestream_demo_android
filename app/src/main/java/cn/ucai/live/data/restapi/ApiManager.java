@@ -2,6 +2,7 @@ package cn.ucai.live.data.restapi;
 
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.util.Log;
 
 import com.hyphenate.chat.EMClient;
 import com.hyphenate.easeui.domain.User;
@@ -123,9 +124,11 @@ public class ApiManager {
         liveRoom.setAnchorId(EMClient.getInstance().getCurrentUser());
         liveRoom.setCover(coverUrl);
         String cover = coverUrl.substring(coverUrl.indexOf("/"));
-        String des = description +"#live201612#"+ cover;
+        Log.i("main", "Apimanager,cover="+cover);
+        String sname = name +"#live201612#"+ cover;
+        Log.i("main", "Apimanager,sname="+sname);
 
-        String roomId = createChatRoom(name, des);
+        String roomId = createChatRoom(sname, description);
         if (roomId != null) {
             L.e("test,roomId=" + roomId);
             liveRoom.setId(roomId);
