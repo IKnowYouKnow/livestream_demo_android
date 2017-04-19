@@ -44,6 +44,7 @@ public class LiveAnchorActivity extends LiveBaseActivity {
     @BindView(R.id.cover_image)
     ImageView coverImage;
 
+
     @BindView(R.id.live_container)
     RelativeLayout liveContainer;
     //@BindView(R.id.img_bt_switch_light) ImageButton lightSwitch;

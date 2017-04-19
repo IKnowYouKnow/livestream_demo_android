@@ -71,15 +71,15 @@ public class GiftListDialog extends DialogFragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-            mGiftList = LiveHelper.getInstance().getGiftList();
-            if (mGiftList.size() > 0) {
-                if (mGiftAdapter == null) {
-                    mGiftAdapter = new GiftAdapter(getContext(), mGiftList);
-                    mRvGift.setAdapter(mGiftAdapter);
-                } else {
-                    mGiftAdapter.notifyDataSetChanged();
-                }
+        mGiftList = LiveHelper.getInstance().getGiftList();
+        if (mGiftList.size() > 0) {
+            if (mGiftAdapter == null) {
+                mGiftAdapter = new GiftAdapter(getContext(), mGiftList);
+                mRvGift.setAdapter(mGiftAdapter);
+            } else {
+                mGiftAdapter.notifyDataSetChanged();
             }
+        }
     }
 
     private void customDialog() {
@@ -93,60 +93,66 @@ public class GiftListDialog extends DialogFragment {
         window.setAttributes(wlp);
     }
 
+    public View.OnClickListener eventListener;
+
+    public void setGiftEventListener(View.OnClickListener eventListener) {
+        this.eventListener = eventListener;
+    }
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         unbinder.unbind();
     }
 
-}
 
-class GiftAdapter extends RecyclerView.Adapter<GiftAdapter.GiftViewHolder> {
-    Context mContext;
+    class GiftAdapter extends RecyclerView.Adapter<GiftAdapter.GiftViewHolder> {
+        Context mContext;
 
-    List<Gift> mList;
+        List<Gift> mList;
 
-    public GiftAdapter(Context context, List<Gift> list) {
-        mContext = context;
-        mList = list;
-    }
-
-    @Override
-    public GiftAdapter.GiftViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        GiftViewHolder holder = new GiftViewHolder(View.inflate(mContext,R.layout.item_gift,null));
-        return holder;
-    }
-
-    @Override
-    public void onBindViewHolder(GiftAdapter.GiftViewHolder holder, int position) {
-        holder.bind(mList.get(position));
-    }
-
-    @Override
-    public int getItemCount() {
-        return mList!=null?mList.size():0;
-    }
-
-    class GiftViewHolder extends RecyclerView.ViewHolder{
-        @BindView(R.id.ivGiftThumb)
-        ImageView mIvGiftThumb;
-        @BindView(R.id.tvGiftName)
-        TextView mTvGiftName;
-        @BindView(R.id.tvGiftPrice)
-        TextView mTvGiftPrice;
-        @BindView(R.id.layout_gift)
-        LinearLayout mLayoutGift;
-
-        GiftViewHolder(View view) {
-            super(view);
-            ButterKnife.bind(this, view);
+        public GiftAdapter(Context context, List<Gift> list) {
+            mContext = context;
+            mList = list;
         }
 
-        public void bind(Gift gift) {
-            EaseUserUtils.setUserAvatarPath(mContext,gift.getGurl(),mIvGiftThumb);
-            mTvGiftName.setText(gift.getGname());
-            mTvGiftPrice.setText(String.valueOf(gift.getGprice()));
+        @Override
+        public GiftAdapter.GiftViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            GiftViewHolder holder = new GiftViewHolder(View.inflate(mContext, R.layout.item_gift, null));
+            return holder;
+        }
 
+        @Override
+        public void onBindViewHolder(GiftAdapter.GiftViewHolder holder, int position) {
+            holder.bind(mList.get(position));
+        }
+
+        @Override
+        public int getItemCount() {
+            return mList != null ? mList.size() : 0;
+        }
+
+        class GiftViewHolder extends RecyclerView.ViewHolder {
+            @BindView(R.id.ivGiftThumb)
+            ImageView mIvGiftThumb;
+            @BindView(R.id.tvGiftName)
+            TextView mTvGiftName;
+            @BindView(R.id.tvGiftPrice)
+            TextView mTvGiftPrice;
+            @BindView(R.id.layout_gift)
+            LinearLayout mLayoutGift;
+
+            GiftViewHolder(View view) {
+                super(view);
+                ButterKnife.bind(this, view);
+            }
+
+            public void bind(Gift gift) {
+                EaseUserUtils.setUserAvatarPath(mContext, gift.getGurl(), mIvGiftThumb);
+                mTvGiftName.setText(gift.getGname());
+                mTvGiftPrice.setText(String.valueOf(gift.getGprice()));
+                mLayoutGift.setTag(gift.getId());
+                mLayoutGift.setOnClickListener(eventListener);
+            }
         }
     }
 }
