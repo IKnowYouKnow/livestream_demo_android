@@ -109,7 +109,7 @@ public abstract class LiveBaseActivity extends BaseActivity {
 
     volatile boolean isGiftShowing = false;
     volatile boolean isGift2Showing = false;
-    List<String> toShowList = Collections.synchronizedList(new LinkedList<String>());
+    List<EMMessage> toShowList = Collections.synchronizedList(new LinkedList<EMMessage>());
 
     protected EMChatRoom chatroom;
     private static final int MAX_SIZE = 10;
@@ -159,22 +159,34 @@ public abstract class LiveBaseActivity extends BaseActivity {
         });
 
     }
-    protected synchronized void showLeftGiftVeiw(String name) {
+    protected synchronized void showLeftGiftVeiw(EMMessage message) {
         if(!isGift2Showing){
-            showGift2Derect(name);
+            showGift2Derect(message);
         }else if(!isGiftShowing){
-            showGift1Derect(name);
+            showGift1Derect(message);
         }else{
-            toShowList.add(name);
+            toShowList.add(message);
         }
     }
-    private void showGift1Derect(final String name){
+    private void showGift1Derect(final EMMessage message){
         isGiftShowing = true;
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                int giftId = 0;
+                String username = message.getFrom();
+                String nick = null;
+                try {
+                    giftId = message.getIntAttribute(LiveConstants.CMD_GIFT);
+                    nick = message.getStringAttribute(I.User.NICK);
+                } catch (HyphenateException e) {
+                    nick = username;
+                    e.printStackTrace();
+                }
                 leftGiftView.setVisibility(View.VISIBLE);
-                leftGiftView.setName(name);
+                leftGiftView.setName(nick);
+                leftGiftView.setAvatar(username);
+                leftGiftView.setGift(giftId);
                 leftGiftView.setTranslationY(0);
                 ViewAnimator.animate(leftGiftView)
                         .alpha(0,1)
@@ -187,7 +199,7 @@ public abstract class LiveBaseActivity extends BaseActivity {
                         .onStop(new AnimationListener.Stop() {
                             @Override
                             public void onStop() {
-                                String pollName = null;
+                                EMMessage pollName = null;
                                 try {
                                     pollName = toShowList.remove(0);
                                 }catch (Exception e){
@@ -209,13 +221,25 @@ public abstract class LiveBaseActivity extends BaseActivity {
             }
         });
     }
-    private void showGift2Derect(final String name){
+    private void showGift2Derect(final EMMessage message){
         isGift2Showing = true;
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                int giftId = 0;
+                String username = message.getFrom();
+                String nick = null;
+                try {
+                    giftId = message.getIntAttribute(LiveConstants.CMD_GIFT);
+                    nick = message.getStringAttribute(I.User.NICK);
+                } catch (HyphenateException e) {
+                    nick = username;
+                    e.printStackTrace();
+                }
                 leftGiftView2.setVisibility(View.VISIBLE);
-                leftGiftView2.setName(name);
+                leftGiftView2.setName(nick);
+                leftGiftView2.setGift(giftId);
+                leftGiftView2.setAvatar(username);
                 leftGiftView2.setTranslationY(0);
                 ViewAnimator.animate(leftGiftView2)
                         .alpha(0,1)
@@ -228,7 +252,7 @@ public abstract class LiveBaseActivity extends BaseActivity {
                         .onStop(new AnimationListener.Stop() {
                             @Override
                             public void onStop() {
-                                String pollName = null;
+                                EMMessage pollName = null;
                                 try {
                                     pollName = toShowList.remove(0);
                                 }catch (Exception e){
@@ -249,6 +273,7 @@ public abstract class LiveBaseActivity extends BaseActivity {
                         .start();
             }
         });
+
     }
     protected void addChatRoomChangeListener() {
         chatRoomChangeListener = new EMChatRoomChangeListener() {
@@ -389,7 +414,7 @@ public abstract class LiveBaseActivity extends BaseActivity {
         public void onCmdMessageReceived(List<EMMessage> messages) {
             EMMessage message = messages.get(messages.size() - 1);
             if (LiveConstants.CMD_GIFT.equals(((EMCmdMessageBody) message.getBody()).action())) {
-                //showLeftGiftView(message.getFrom());
+                showLeftGiftVeiw(message);
             } else if (LiveConstants.CMD_PRAISE.equals(((EMCmdMessageBody) message.getBody()).action())) {
                 showPraise(message.getIntAttribute(LiveConstants.EXTRA_PRAISE_COUNT, 1));
             }
@@ -671,7 +696,7 @@ public abstract class LiveBaseActivity extends BaseActivity {
         message.setAttribute(I.User.NICK,PreferenceManager.getInstance().getCurrentUserNick());
         message.setChatType(EMMessage.ChatType.ChatRoom);
         EMClient.getInstance().chatManager().sendMessage(message);
-        showLeftGiftVeiw(EMClient.getInstance().getCurrentUser());
+        showLeftGiftVeiw(message);
     }
 
     //@OnClick(R.id.chat_image) void onChatImageClick() {

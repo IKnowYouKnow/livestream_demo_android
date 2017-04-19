@@ -57,7 +57,7 @@ public class LiveLeftGiftView extends RelativeLayout {
 
     public void setAvatar(String avatar) {
 //        Glide.with(getContext()).load(avatar).into(this.avatar);
-        EaseUserUtils.setUserAvatarPath(getContext(),avatar,this.avatar);
+        EaseUserUtils.setAppUserAvatar(getContext(),avatar,this.avatar);
     }
 
     public void setGift(int giftId) {
