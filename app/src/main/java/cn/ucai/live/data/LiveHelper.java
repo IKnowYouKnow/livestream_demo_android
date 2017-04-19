@@ -17,7 +17,11 @@ import com.hyphenate.easeui.domain.User;
 import com.hyphenate.easeui.utils.EaseCommonUtils;
 import com.hyphenate.util.EMLog;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -62,6 +66,8 @@ public class LiveHelper {
     private Context appContext;
 
     private Map<Integer, Gift> mGiftMap;
+
+    private List<Gift> mGiftList;
 
     private IUserModel mModel;
 
@@ -293,7 +299,7 @@ public class LiveHelper {
     public void saveGifts(List<Gift> list) {
         demoModel.saveGifts(list);
         for (Gift gift : list) {
-            mGiftMap.put(gift.getId(), gift);
+            getGifts().put(gift.getId(), gift);
         }
     }
 
@@ -307,6 +313,27 @@ public class LiveHelper {
         return mGiftMap;
     }
 
+    public List<Gift> getGiftList(){
+        if (mGiftList == null) {
+            if (getGifts().size() > 0) {
+                mGiftList = new ArrayList<>();
+                Iterator<Map.Entry<Integer, Gift>> iterator = mGiftMap.entrySet().iterator();
+                while (iterator.hasNext()) {
+                    mGiftList.add(iterator.next().getValue());
+                }
+                Collections.sort(mGiftList, new Comparator<Gift>() {
+                    @Override
+                    public int compare(Gift lhs, Gift rhs) {
+                        return lhs.getGprice()-rhs.getGprice();
+                    }
+                });
+            }
+        }
+        if (mGiftList == null) {
+            mGiftList = new ArrayList<>();
+        }
+        return mGiftList;
+    }
     public void syncLoadGiftList() {
         new Thread(new Runnable() {
             @Override
