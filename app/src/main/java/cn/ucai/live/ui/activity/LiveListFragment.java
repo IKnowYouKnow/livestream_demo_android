@@ -25,6 +25,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import cn.ucai.live.R;
 import cn.ucai.live.ThreadPoolManager;
+import cn.ucai.live.data.LiveHelper;
+import cn.ucai.live.data.model.Gift;
 import cn.ucai.live.data.model.LiveRoom;
 import cn.ucai.live.data.restapi.ApiManager;
 import cn.ucai.live.data.restapi.model.ResponseModule;
@@ -86,7 +88,8 @@ public class LiveListFragment extends Fragment {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                ApiManager.get().getAllGifts();
+                List<Gift> allGifts = ApiManager.get().getAllGifts();
+                LiveHelper.getInstance().saveGifts(allGifts);
             }
         }).start();
     }
