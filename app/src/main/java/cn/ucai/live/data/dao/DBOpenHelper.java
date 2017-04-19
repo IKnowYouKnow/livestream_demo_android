@@ -16,7 +16,7 @@ public class DBOpenHelper extends SQLiteOpenHelper {
             +" ("+ GiftDao.COLUMN_ID +" integer primary key,"
             + GiftDao.COLUMN_GNAME+" TEXT ,"
             + GiftDao.COLUMN_GURL + " TEXT,"
-            + GiftDao.COLUMN_GPRICE+ "integer"
+            + GiftDao.COLUMN_GPRICE+ " integer"
             +");";
     public static DBOpenHelper getInstance(Context context){
         if (instance == null) {
