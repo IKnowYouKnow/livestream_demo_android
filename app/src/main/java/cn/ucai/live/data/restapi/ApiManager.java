@@ -21,7 +21,6 @@ import cn.ucai.live.data.model.Result;
 import cn.ucai.live.data.restapi.model.LiveStatusModule;
 import cn.ucai.live.data.restapi.model.ResponseModule;
 import cn.ucai.live.data.restapi.model.StatisticsType;
-import cn.ucai.live.utils.L;
 import cn.ucai.live.utils.ResultUtils;
 import okhttp3.Interceptor;
 import okhttp3.MediaType;
@@ -123,32 +122,32 @@ public class ApiManager {
         liveRoom.setAnchorId(EMClient.getInstance().getCurrentUser());
         liveRoom.setCover(coverUrl);
 
-        String roomId = createChatRoom(name, description);
-        if (roomId != null) {
-            L.e("test,roomId="+roomId);
-            liveRoom.setId(roomId);
-            liveRoom.setChatroomId(roomId);
-        }else {
-            liveRoom.setId(liveRoomId);
-        }
-//        Call<ResponseModule<LiveRoom>> responseCall;
-//        if (liveRoomId != null) {
-//            responseCall = apiService.createLiveShow(liveRoomId, liveRoom);
-//
-//        } else {
-//            responseCall = apiService.createLiveRoom(liveRoom);
-//        }
-//        ResponseModule<LiveRoom> response = handleResponseCall(responseCall).body();
-//        LiveRoom room = response.data;
-//        if (room.getId() != null) {
-//
-//        } else {
+//        String roomId = createChatRoom(name, description);
+//        if (roomId != null) {
+//            L.e("test,roomId="+roomId);
+//            liveRoom.setId(roomId);
+//            liveRoom.setChatroomId(roomId);
+//        }else {
 //            liveRoom.setId(liveRoomId);
 //        }
-//        liveRoom.setChatroomId(room.getChatroomId());
-//        //liveRoom.setAudienceNum(1);
-//        liveRoom.setLivePullUrl(room.getLivePullUrl());
-//        liveRoom.setLivePushUrl(room.getLivePushUrl());
+        Call<ResponseModule<LiveRoom>> responseCall;
+        if (liveRoomId != null) {
+            responseCall = apiService.createLiveShow(liveRoomId, liveRoom);
+
+        } else {
+            responseCall = apiService.createLiveRoom(liveRoom);
+        }
+        ResponseModule<LiveRoom> response = handleResponseCall(responseCall).body();
+        LiveRoom room = response.data;
+        if (room.getId() != null) {
+
+        } else {
+            liveRoom.setId(liveRoomId);
+        }
+        liveRoom.setChatroomId(room.getChatroomId());
+        //liveRoom.setAudienceNum(1);
+        liveRoom.setLivePullUrl(room.getLivePullUrl());
+        liveRoom.setLivePushUrl(room.getLivePushUrl());
         return liveRoom;
     }
 
